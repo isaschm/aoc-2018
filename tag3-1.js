@@ -4,45 +4,53 @@ var textByLine = text.split("\n")
 
 //last element is NaN
 textByLine.pop();
-textByLine.pop();
 
+let test = "#1333 @ 469,706: 15x28"
+let valueMap = new Map();
+let count = 0;
 
-let squares = new Array(1500).fill(0).map(x => Array(1500).fill(0));
-
-let test = "#3 @ 5,5: 2x2"
-
+//returns input as array 
 function parse (element){
     let line = element.split(" ");
-    let beginOben = parseInt(line[2].split(",")[0]);
-    let beginLinks = line[2].split(",")[1];
-    beginLinks= parseInt(beginLinks.substring(0, beginLinks.length-1));
+
+    //where to start
+    let beginI = parseInt(line[2].split(",")[0]);
+    let beginJ = line[2].split(",")[1];
+    beginJ= parseInt(beginJ.substring(0, beginJ.length-1));
+
+    //extension
     let extensionRight = parseInt(line[3].split("x")[0]);
-    let extensionDown = line[3].split("x")[1];
-    extensionDown = parseInt(extensionDown.substring(1, extensionDown.length));
+    let extensionDown = parseInt(line[3].split("x")[1]);
+  
     
-    return [beginOben, beginLinks, extensionDown, extensionRight];
+    return [beginI, beginJ, extensionRight, extensionDown];
 }
 
-function countUp(field, beginTop, beginLeft, extRight, extDown){
-    for (let i = beginTop; i< extDown+beginTop;i++){
-        for(let j = beginLeft; j < extRight+beginLeft;j++){
-            field[i][j] += 1;
-        }
-    }
-    return field;
+//increments value in square by checking of key already exists
+function incrementValue(map, key){
+	typeof map.get(key) == 'undefined' ? valueMap.set(key, 1) : valueMap.set(key, 2);
 }
 
-function countXs(field){
-    let count =0;
- 
-    field.forEach(function(element) {for (let i= 0; i<element.length; i++){if (element[i]> 1) count++;}});
-    
-    return count;
+function generateKeys(arr){
+	for(i = arr[0]; i< arr[0]+arr[2]; i++){
+		for (j = arr[1]; j< arr[1]+arr[3]; j++){
+			let key = "i" + i.toString() + "j" + j.toString();
+			incrementValue(valueMap, key);
+		}
+	}
 }
 
-let allxs = textByLine.forEach(function(element) {
-	countXs(countUp(squares, parse(textByLine)[0], parse(textByLine)[1], parse(textByLine)[3], parse(textByLine)[2]));
-});
-console.log(allxs);
+function countXs (map){
+	for (const item of map){
+		if(item[1]> 1)
+			count++;
+	}
+}
 
-console.log(textByLine.includes(undefined));
+textByLine.forEach(function(element){
+	generateKeys(parse(element));
+})
+
+countXs(valueMap);
+console.log(valueMap);
+console.log(count);
