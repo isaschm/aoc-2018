@@ -9,8 +9,6 @@ let test = "#1 @ 469,706: 15x28"
 let valueMap = new Map();
 let idMap = new Map();
 
-//id übergeben, wenn irgendwo inkrementiert wird, id cutten
-
 //returns input as array 
 function parse (element){
     let line = element.split(" ");
@@ -30,34 +28,37 @@ function parse (element){
 }
 
 //increments value in square by checking of key already exists
-function incrementValue(map, key){
-	typeof map.get(key) == 'undefined' ? valueMap.set(key, 1) : valueMap.set(key, 2);
+function incrementValue(key, id){
+	if(typeof valueMap.get(key) == 'undefined'){
+		valueMap.set(key, id);
+	} else {
+		let tmp = valueMap.get(key);
+		let newTmp = tmp + " + " + id;
+		valueMap.set(key, newTmp);
+	}
 }
 
 function generateKeys(arr){
 	for(i = arr[0]; i< arr[0]+arr[2]; i++){
 		for (j = arr[1]; j< arr[1]+arr[3]; j++){
 			let key = "i" + i.toString() + "j" + j.toString();
-			incrementValue(valueMap, key);
+			incrementValue(key, arr[4]);
 		}
 	}
 }
 
-/*
-function countXs (map){
-	for (const item of map){
-		if(item[1]> 1)
-			count++;
-	}
-}
-*/
-
 textByLine.forEach(function(element){
-	idMap.set(parse(element)[4]);
+	idMap.set(parse(element)[4], 1);
 	generateKeys(parse(element));
 });
 
+for (const item of valueMap.values()){
+	let ids = item.split(" + ");
+	if(ids.length > 1){
+		for (const item2 of ids){
+			if(idMap.has(item2)) idMap.delete(item2);
+		}
+	}
+};
 
-console.log(parse(test));
-
-console.log(typeof valueMap);
+console.log(idMap);
